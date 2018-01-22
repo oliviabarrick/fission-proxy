@@ -27,6 +27,7 @@ sudo install -m 755 -T fission-cli /usr/local/bin/fission-cli
 Now install the fission-cli wrapper:
 
 ```
+curl -Lo fission.sh https://raw.githubusercontent.com/justinbarrick/fission-proxy/master/fission.sh
 sudo install -m 755 -T fission.sh /usr/local/bin/fission
 ```
 
