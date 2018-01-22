@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fission-proxy-conf
+data:
+  nginx.conf: |
+    worker_processes  5;
+    error_log stderr;
+    pid        /var/run/nginx.pid;
+    worker_rlimit_nofile 8192;
+
+    daemon off;
+
+    events {
+      worker_connections  4096;
+    }
+
+    http {
+      server {
+        listen          80;
+        access_log      /dev/stdout;
+
+        resolver 10.3.0.10;
+        set $backend_upstream "http://controller.default.svc.cluster.local";
+
+        location / {
+          proxy_pass $backend_upstream;
+        }
+      }
+    }
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fission-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fission-proxy
+  template:
+    metadata:
+      labels:
+        name: fission-proxy
+    spec:
+      containers:
+      - name: fission-proxy
+        image: nginx:1.13.8
+        imagePullPolicy: IfNotPresent
+        command:
+        - nginx
+        - -c
+        - /etc/nginx/nginx.conf
+        ports:
+        volumeMounts:
+        - name: fission-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: fission-config
+        configMap:
+          name: fission-proxy-conf
