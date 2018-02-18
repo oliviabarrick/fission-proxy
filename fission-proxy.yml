@@ -20,8 +20,8 @@ data:
         listen          80;
         access_log      /dev/stdout;
 
-        resolver 10.3.0.10;
-        set $backend_upstream "http://controller.default.svc.cluster.local";
+        resolver 10.96.0.10;
+        set $backend_upstream "http://controller.fission.svc.cluster.local";
 
         location / {
           proxy_pass $backend_upstream;
